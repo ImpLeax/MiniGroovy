@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -41,7 +42,8 @@ struct LexResult {
 // Зупиняється на першій лексичній помилці (аварійне завершення).
 class Lexer {
 public:
-    explicit Lexer(std::string source);
+    // trace — потік для покрокового трасування автомата (nullptr — без трасування).
+    explicit Lexer(std::string source, std::ostream* trace = nullptr);
 
     // Розбирає весь текст програми.
     LexResult run();
@@ -67,6 +69,10 @@ private:
     void fail(State state, std::size_t errorPos, std::string message);
     int columnAt(std::size_t pos) const;
 
+    // Трасування: рядок про крок автомата та рядок про дії в заключному стані.
+    void traceStep(std::size_t charPos, int ch, CharClass cls, State from, const Transition& transition);
+    void traceFinal(State state, std::size_t tokensBefore);
+
     std::string source_;
     std::size_t pos_ = 0;           // індекс наступного байта, який прочитає nextChar()
     int line_ = 1;                  // поточний номер рядка
@@ -78,6 +84,9 @@ private:
     LexResult result_;
     std::unordered_map<std::string, int> identifierIndex_;
     std::unordered_map<std::string, int> constantIndex_;
+
+    std::ostream* trace_ = nullptr;  // потік трасування або nullptr
+    int stepNumber_ = 0;             // номер кроку автомата для трасування
 };
 
 }  // namespace minigroovy

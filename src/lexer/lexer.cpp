@@ -3,11 +3,13 @@
 #include <cerrno>
 #include <cmath>
 #include <cstdlib>
+#include <format>
 #include <stdexcept>
 #include <utility>
 
 #include "lexer/char_class.hpp"
 #include "lexer/token_table.hpp"
+#include "lexer/trace.hpp"
 
 namespace minigroovy {
 
@@ -65,9 +67,11 @@ std::string decodeString(const std::string& lexeme) {
 
 }  // namespace
 
-Lexer::Lexer(std::string source) : source_(std::move(source)) {}
+Lexer::Lexer(std::string source, std::ostream* trace) : source_(std::move(source)), trace_(trace) {}
 
 LexResult Lexer::run() {
+    if (trace_) printTraceHeader(*trace_);
+
     State state = State::Start;
     while (true) {
         if (state == State::Start) {
@@ -76,14 +80,23 @@ LexResult Lexer::run() {
             lexemeStart_ = pos_;
         }
 
-        const int ch = nextChar();                           // прочитати наступний символ
-        state = nextState(state, ch, classOfChar(ch));       // обчислити наступний стан
+        const std::size_t charPos = pos_;
+        const int ch = nextChar();                                  // прочитати наступний символ
+        const CharClass cls = classOfChar(ch);                      // до якого класу належить
+        const State from = state;
+        const Transition transition = findTransition(state, ch, cls);
+        state = transition.to;                                      // обчислити наступний стан
 
         if (isFinal(state)) {
-            if (!processing(state, ch)) break;               // виконати семантичні процедури
+            if (trace_) traceStep(charPos, ch, cls, from, transition);
+            const std::size_t tokensBefore = result_.tokens.size();
+            const bool proceed = processing(state, ch);             // виконати семантичні процедури
+            if (trace_) traceFinal(state, tokensBefore);
+            if (!proceed) break;
             state = State::Start;
-        } else if (state != State::Start) {
-            lexeme_ += static_cast<char>(ch);                // додати символ до лексеми
+        } else {
+            if (state != State::Start) lexeme_ += static_cast<char>(ch);  // додати символ до лексеми
+            if (trace_) traceStep(charPos, ch, cls, from, transition);
         }
     }
     return std::move(result_);
@@ -266,5 +279,34 @@ void Lexer::fail(State state, std::size_t errorPos, std::string message) {
 }
 
 int Lexer::columnAt(std::size_t pos) const { return countCodePoints(source_, lineStart_, pos) + 1; }
+
+void Lexer::traceStep(std::size_t charPos, int ch, CharClass cls, State from, const Transition& transition) {
+    const std::string charText = ch == kEof ? "eof" : "'" + printableChar(source_, charPos) + "'";
+    printTraceStep(*trace_, TraceStep{++stepNumber_, charPos, line_, columnAt(charPos), charText, cls, from,
+                                      transition, lexeme_});
+}
+
+void Lexer::traceFinal(State state, std::size_t tokensBefore) {
+    std::string text = std::format("final state {}", static_cast<int>(state));
+    if (const int back = charsToPutBack(state); back > 0) {
+        text += std::format(", put back {} char{}", back, back > 1 ? "s" : "");
+    }
+
+    if (result_.tokens.size() > tokensBefore) {
+        const Token& t = result_.tokens.back();
+        text += std::format(": {} '{}' (code {}", tokenTypeName(t.type), t.lexeme, t.code);
+        if (t.index > 0) text += std::format(", index {}", t.index);
+        text += ")";
+    } else if (result_.error) {
+        text += ": ERROR " + result_.error->message;
+    } else if (state == State::CommentEnd) {
+        text += ": comment skipped";
+    } else if (state == State::EndOfLine || state == State::EndOfLineCr) {
+        text += std::format(": end of line, line counter = {}", line_);
+    } else if (state == State::EndOfFile) {
+        text += ": end of file";
+    }
+    printTraceAction(*trace_, text);
+}
 
 }  // namespace minigroovy

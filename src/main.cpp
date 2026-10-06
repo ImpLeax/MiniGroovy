@@ -1,6 +1,7 @@
 // Транслятор MiniGroovy. Поки що реалізовано лексичний аналізатор (КП1).
 //
-// Використання:  minigroovy.exe <file.mgy>
+// Використання:  minigroovy.exe [--trace] <file.mgy>
+//                --trace — покроково показати роботу діаграми станів
 // Коди виходу:   0 — аналіз успішний, 1 — лексична помилка,
 //                2 — неправильні аргументи або файл не прочитано.
 
@@ -30,8 +31,9 @@ constexpr std::string_view kSourceExtension = ".mgy";
 
 void printUsage(std::ostream& out) {
     out << "MiniGroovy lexical analyzer\n"
-        << "Usage: minigroovy <file" << kSourceExtension << ">\n"
-        << "Prints the symbol table, the identifier table and the constant table.\n";
+        << "Usage: minigroovy [--trace] <file" << kSourceExtension << ">\n"
+        << "Prints the symbol table, the identifier table and the constant table.\n"
+        << "  --trace   show every step of the state diagram before the tables\n";
 }
 
 }  // namespace
@@ -43,17 +45,29 @@ int main(int argc, char** argv) {
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
-    if (argc != 2) {
+    bool trace = false;
+    const char* fileArg = nullptr;
+    for (int i = 1; i < argc; ++i) {
+        const std::string_view arg = argv[i];
+        if (arg == "-h" || arg == "--help") {
+            printUsage(std::cout);
+            return 0;
+        }
+        if (arg == "--trace") {
+            trace = true;
+        } else if (fileArg == nullptr && !arg.starts_with('-')) {
+            fileArg = argv[i];
+        } else {
+            printUsage(std::cerr);
+            return 2;
+        }
+    }
+    if (fileArg == nullptr) {
         printUsage(std::cerr);
         return 2;
     }
-    const std::string_view arg = argv[1];
-    if (arg == "-h" || arg == "--help") {
-        printUsage(std::cout);
-        return 0;
-    }
 
-    const std::filesystem::path path(argv[1]);
+    const std::filesystem::path path(fileArg);
     // binary — щоб ОС не перетворювала CR LF: кінці рядків обробляє сам автомат.
     std::ifstream file(path, std::ios::binary);
     if (!file) {
@@ -68,8 +82,9 @@ int main(int argc, char** argv) {
     std::ostringstream text;
     text << file.rdbuf();
 
-    minigroovy::Lexer lexer(text.str());
+    minigroovy::Lexer lexer(text.str(), trace ? &std::cout : nullptr);
     const minigroovy::LexResult result = lexer.run();
+    if (trace) std::cout << '\n';
 
     minigroovy::printTokenTable(std::cout, result);
     if (result.ok()) {

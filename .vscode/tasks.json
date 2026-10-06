@@ -1,0 +1,23 @@
+{
+    // Задачі збірки для VS Code (Ctrl+Shift+B — збірка Debug).
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build (Debug)",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/build.ps1",
+                     "-Configuration", "Debug"],
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "build (Release) + tests",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/build.ps1", "-Test"],
+            "group": "test",
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}

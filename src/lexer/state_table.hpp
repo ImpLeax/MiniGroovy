@@ -49,8 +49,23 @@ enum class State : int {
     ErrBadNumber = 107,       // до числа прилипли літери: 2value, 1e5, 3.5abc
 };
 
+// За чим саме знайдено перехід — потрібно для трасування.
+enum class TransitionVia {
+    Char,   // δ(стан, 'символ')
+    Class,  // δ(стан, клас)
+    Other,  // δ(стан, other)
+};
+
+struct Transition {
+    State to;
+    TransitionVia via;
+};
+
 // Функція переходів δ(стан, символ). Перехід шукається в такому порядку:
 // спершу за конкретним символом, потім за класом символу, потім за класом other.
+Transition findTransition(State state, int ch, CharClass cls);
+
+// Те саме, але лише наступний стан.
 State nextState(State state, int ch, CharClass cls);
 
 // Чи є стан заключним (множина F).

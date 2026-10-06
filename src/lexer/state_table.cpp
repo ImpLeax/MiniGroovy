@@ -149,21 +149,23 @@ const Lookup& lookup() {
 
 }  // namespace
 
-State nextState(State state, int ch, CharClass cls) {
+Transition findTransition(State state, int ch, CharClass cls) {
     const Lookup& table = lookup();
 
     // 1) за конкретним символом
     if (ch != kEof) {
         const auto it = table.byChar.find({state, static_cast<char>(ch)});
-        if (it != table.byChar.end()) return it->second;
+        if (it != table.byChar.end()) return {it->second, TransitionVia::Char};
     }
     // 2) за класом символу
     if (const auto it = table.byClass.find({state, cls}); it != table.byClass.end()) {
-        return it->second;
+        return {it->second, TransitionVia::Class};
     }
     // 3) за класом other — він є для кожного незаключного стану
-    return table.byOther.at(state);
+    return {table.byOther.at(state), TransitionVia::Other};
 }
+
+State nextState(State state, int ch, CharClass cls) { return findTransition(state, ch, cls).to; }
 
 bool isFinal(State state) {
     switch (state) {

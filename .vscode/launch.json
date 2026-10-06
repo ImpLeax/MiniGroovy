@@ -1,0 +1,41 @@
+{
+    // Налагодження лексера через gdb з MinGW (розширення ms-vscode.cpptools).
+    // Перед запуском автоматично виконується збірка Debug (-O0 -g).
+    // Якщо MinGW встановлено в інше місце, змініть miDebuggerPath.
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Debug lexer: examples/tmp.mgy",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/minigroovy.exe",
+            "args": ["${workspaceFolder}/examples/tmp.mgy"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Program Files (x86)/mingw64/bin/gdb.exe",
+            "setupCommands": [
+                { "description": "Pretty printing for std::string etc.", "text": "-enable-pretty-printing", "ignoreFailures": true }
+            ],
+            "preLaunchTask": "build (Debug)"
+        },
+        {
+            "name": "Debug lexer: current .mgy file",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/minigroovy.exe",
+            "args": ["${file}"],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Program Files (x86)/mingw64/bin/gdb.exe",
+            "setupCommands": [
+                { "description": "Pretty printing for std::string etc.", "text": "-enable-pretty-printing", "ignoreFailures": true }
+            ],
+            "preLaunchTask": "build (Debug)"
+        }
+    ]
+}
