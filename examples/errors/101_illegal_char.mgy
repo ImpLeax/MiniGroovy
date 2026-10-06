@@ -1,0 +1,3 @@
+// The hash sign is not in the MiniGroovy alphabet
+int a = 5;
+int b = a # 2;

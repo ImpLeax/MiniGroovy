@@ -1,0 +1,5 @@
+// A single | is not an operator, || is expected
+boolean a = false;
+if (a | true) {
+    print("yes");
+}

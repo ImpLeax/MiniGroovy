@@ -1,0 +1,2 @@
+// A raw tab inside a string literal must be written as \t
+print("a	b");

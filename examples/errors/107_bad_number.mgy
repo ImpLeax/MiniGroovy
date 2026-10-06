@@ -1,0 +1,3 @@
+// An identifier cannot start with a digit, exponents are not supported
+int count = 10;
+float big = 1e5;

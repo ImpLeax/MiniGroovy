@@ -1,0 +1,6 @@
+// Every lexeme here is valid, but the program is syntactically wrong.
+// The lexer must NOT report an error - syntax is checked by the parser.
+int int = = 5;;
+type 0..100 Percent
+while while ( ) { else
+x = 1. + .5 ** ** read print;

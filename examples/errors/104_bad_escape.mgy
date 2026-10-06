@@ -1,0 +1,3 @@
+// Only \n \t \r \" and \\ escape sequences are allowed
+print("Line1\n");
+print("Path C\temp\q");

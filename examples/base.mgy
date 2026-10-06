@@ -1,0 +1,115 @@
+// Types and global declarations
+enum State { READY, DONE }
+type Percent = 0..100;
+
+final int SIZE = 3;
+final int LIMIT = 5;
+final float HALF = 0.5;
+
+int values[SIZE] = {1, 2, 3};
+int calls;
+int number;
+float result;
+boolean valid = false;
+String input;
+String title = "MiniGroovy\n";
+State state = State.READY;
+Percent progress;
+
+// Recursive function and access to a global variable
+int factorial(int n) {
+    calls = calls + 1;
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+// Shared array and scalar parameter passed by value
+void fill(int items[], int size, int start) {
+    int index = 0;
+    while (index < size) {
+        items[index] = start;
+        start = start + 1;
+        index = index + 1;
+    }
+    return;
+}
+
+// Function without parameters
+void showTitle() {
+    print(title);
+}
+
+// Main instructions
+showTitle();
+print("Enter an integer from 0 to 5\n");
+input = read();
+valid = true;
+if (input == "") {
+    valid = false;
+} else {
+    number = int(input);
+    valid = number >= 0 && number <= LIMIT;
+}
+
+if (!valid) {
+    print("Input is outside the allowed range\n");
+} else {
+    int fact = factorial(number);
+    fill(values, SIZE, number);
+
+    print("Factorial = ");
+    print(fact);
+    print("\nCalls = ");
+    print(calls);
+    print("\n");
+
+    for (int index = 0; index < SIZE; index = index + 1) {
+        print(values[index]);
+        print("\t");
+    }
+    print("\n");
+
+    // Range type - the value is checked against 0..100
+    progress = number * 20;
+    print(progress);
+    print("\n");
+
+    // Numeric operations and conversions
+    float widened = number;
+    float parsed = float("2.5");
+    int truncated = int(parsed);
+    int negative = -number;
+
+    result = (float(number) + parsed) * HALF;
+    print(result);
+    print("\n");
+    print(widened - truncated);
+    print("\n");
+    print(negative);
+    print("\n");
+
+    // Right associative exponentiation
+    print(2 ** 3 ** 2);
+    print("\n");
+
+    // Short circuit prevents division by zero
+    boolean safe = number == 0 || 10 / number > 1;
+    print(safe);
+    print("\n");
+
+    // A local variable hides the global variable
+    {
+        int number = 7;
+        print(number);
+        print("\n");
+    }
+    print(number);
+    print("\n");
+
+    state = State.DONE;
+    if (state != State.READY) {
+        print("Finished\n");
+    }
+}

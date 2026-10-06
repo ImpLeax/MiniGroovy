@@ -1,0 +1,3 @@
+// The largest integer literal is 2147483648 (operand of unary minus)
+int min = -2147483648;
+int tooBig = 3000000000;

@@ -1,0 +1,51 @@
+// Nested constructs - blocks, loops, conditions and calls inside each other
+enum Color { RED, GREEN, BLUE }
+type Score = 0..10;
+type Delta = -5..5;
+
+final int N = 4;
+int grid[N] = {3, 1, 4, 1};
+Score best;
+
+int sum(int items[], int count) {
+    int total = 0;
+    for (int i = 0; i < count; i = i + 1) {
+        if (items[i] > 0) {
+            if (items[i] == 2 || items[i] >= 3) {
+                total = total + items[i] * 2;
+            } else {
+                total = total + items[i];
+            }
+        }
+    }
+    return total;
+}
+
+boolean isPrimary(Color c) {
+    return c == Color.RED || c == Color.GREEN || c == Color.BLUE;
+}
+
+int i = 0;
+while (i < N) {
+    int j = i;
+    while (j > 0 && grid[j - 1] > grid[j]) {
+        int tmp = grid[j];
+        grid[j] = grid[j - 1];
+        grid[j - 1] = tmp;
+        j = j - 1;
+    }
+    i = i + 1;
+}
+
+{
+    {
+        best = int(float(sum(grid, N)) / 2.0 ** (1 - 1));
+        print(best);
+    }
+}
+
+if (!(isPrimary(Color.BLUE) && best != 0)) {
+    print("unexpected\n");
+} else {
+    print("ok\n");
+}
