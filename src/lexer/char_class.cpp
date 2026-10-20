@@ -5,7 +5,7 @@ namespace minigroovy {
 namespace {
 
 // Спеціальні знаки, переходи за якими в діаграмі задаються посимвольно.
-constexpr std::string_view kSpecialChars = "+-*/=<>!&|(){}[];,";
+constexpr std::string_view kSpecialChars = "+-*/=<>!&|(){}[];,:";
 
 bool isContinuationByte(unsigned char byte) { return (byte & 0xC0) == 0x80; }
 

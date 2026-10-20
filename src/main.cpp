@@ -1,9 +1,11 @@
-// Транслятор MiniGroovy. Поки що реалізовано лексичний аналізатор (КП1).
+// Транслятор MiniGroovy: лексичний (КП1) і синтаксичний (КП2) аналізатори.
 //
-// Використання:  minigroovy.exe [--trace] <file.mgy>
-//                --trace — покроково показати роботу діаграми станів
+// Використання:  minigroovy.exe [--trace] [--parse-trace] <file.mgy>
+//                --trace       — покроково показати роботу діаграми станів
+//                --parse-trace — показати журнал рекурсивного спуску
 // Коди виходу:   0 — аналіз успішний, 1 — лексична помилка,
-//                2 — неправильні аргументи або файл не прочитано.
+//                2 — неправильні аргументи або файл не прочитано,
+//                3 — синтаксична помилка.
 
 #include <filesystem>
 #include <fstream>
@@ -13,6 +15,7 @@
 #include <string_view>
 
 #include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
 #include "report/report.hpp"
 
 #ifdef _WIN32
@@ -30,10 +33,12 @@ namespace {
 constexpr std::string_view kSourceExtension = ".mgy";
 
 void printUsage(std::ostream& out) {
-    out << "MiniGroovy lexical analyzer\n"
-        << "Usage: minigroovy [--trace] <file" << kSourceExtension << ">\n"
-        << "Prints the symbol table, the identifier table and the constant table.\n"
-        << "  --trace   show every step of the state diagram before the tables\n";
+    out << "MiniGroovy lexical and syntax analyzer\n"
+        << "Usage: minigroovy [--trace] [--parse-trace] <file" << kSourceExtension << ">\n"
+        << "Prints the symbol table, the identifier table and the constant table,\n"
+        << "then checks the syntax of the program by recursive descent.\n"
+        << "  --trace         show every step of the state diagram before the tables\n"
+        << "  --parse-trace   show every call of the recursive descent parser\n";
 }
 
 }  // namespace
@@ -46,6 +51,7 @@ int main(int argc, char** argv) {
 #endif
 
     bool trace = false;
+    bool parseTrace = false;
     const char* fileArg = nullptr;
     for (int i = 1; i < argc; ++i) {
         const std::string_view arg = argv[i];
@@ -55,6 +61,8 @@ int main(int argc, char** argv) {
         }
         if (arg == "--trace") {
             trace = true;
+        } else if (arg == "--parse-trace") {
+            parseTrace = true;
         } else if (fileArg == nullptr && !arg.starts_with('-')) {
             fileArg = argv[i];
         } else {
@@ -95,5 +103,12 @@ int main(int argc, char** argv) {
     }
     std::cout << '\n';
     minigroovy::printSummary(std::cout, result);
-    return result.ok() ? 0 : 1;
+    // Синтаксичний аналіз запускається лише після успішного лексичного.
+    if (!result.ok()) return 1;
+
+    std::cout << '\n';
+    minigroovy::Parser parser(result.tokens, parseTrace ? &std::cout : nullptr);
+    const minigroovy::ParseResult parsed = parser.run();
+    minigroovy::printParseSummary(std::cout, parsed);
+    return parsed.ok() ? 0 : 3;
 }

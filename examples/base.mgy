@@ -71,10 +71,23 @@ if (!valid) {
     }
     print("\n");
 
-    // Range type - the value is checked against 0..100
+    // Range type: the value is checked against 0..100
     progress = number * 20;
     print(progress);
     print("\n");
+
+    // Multiway branching: fallthrough and break
+    switch (number) {
+        case 0:
+        case 1:
+            print("Small number\n");
+            break;
+        case LIMIT:
+            print("Upper limit\n");
+            break;
+        default:
+            print("Medium number\n");
+    }
 
     // Numeric operations and conversions
     float widened = number;

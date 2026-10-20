@@ -52,8 +52,9 @@ void expectError(TestRunner& t, const std::string& name, const std::string& sour
 void testValidInput(TestRunner& t) {
     expectTokens(t, "keywords vs identifiers", "while whileCount _ String string", "16 1 1 10 1");
     expectTokens(t, "builtins and booleans", "print read true false", "20 19 5 6");
-    expectTokens(t, "all keywords", "int float boolean String void final enum type if else while for return",
-                 "7 8 9 10 11 12 13 51 14 15 16 17 18");
+    expectTokens(t, "all keywords",
+                 "int float boolean String void final enum type if else while for return switch case default break",
+                 "7 8 9 10 11 12 13 51 14 15 16 17 18 53 54 55 56");
     expectTokens(t, "leading zeros", "007", "2");
     expectTokens(t, "float literals", "0.5 12.0 3.14", "3 3 3");
     expectTokens(t, "12. is int + dot", "12.", "2 44");
@@ -66,7 +67,7 @@ void testValidInput(TestRunner& t) {
     expectTokens(t, "a = b == c", "a = b == c", "1 21 1 31 1");
     expectTokens(t, "separated stars are two tokens", "* *", "24 24");
     expectTokens(t, "separated assigns are two tokens", "= =", "21 21");
-    expectTokens(t, "brackets and punctuation", "( ) { } [ ] ; , .", "36 37 38 39 40 41 42 43 44");
+    expectTokens(t, "brackets and punctuation", "( ) { } [ ] ; , . :", "36 37 38 39 40 41 42 43 44 57");
     expectTokens(t, "enum access", "State.ON", "1 44 1");
     expectTokens(t, "conversion call", "int(read())", "7 36 19 36 37 37");
     expectTokens(t, "division vs comment", "a / b // c", "1 25 1");
@@ -83,12 +84,17 @@ void testValidInput(TestRunner& t) {
     expectTokens(t, "range with identifiers", "LOW..HIGH", "1 52 1");
     expectTokens(t, "range with negative bound", "-5..5", "23 2 52 2");
     expectTokens(t, "three dots", "...", "52 44");
+    // Інструкція switch
+    expectTokens(t, "case label and break", "case 1: break;", "54 2 57 56 42");
+    expectTokens(t, "negative and enum labels", "case -1:case State.ON:default:", "54 23 2 57 54 1 44 1 57 55 57");
+    expectTokens(t, "switch header", "switch (x) {", "53 36 1 37 38");
+    expectTokens(t, "keyword prefixes are identifiers", "switcher cases defaults breakPoint", "1 1 1 1");
+    expectTokens(t, "colon in comment and string", "// Range type: 0..100\n\"a: b\"", "4");
 }
 
 void testErrors(TestRunner& t) {
     expectError(t, "illegal character #", "x # y", "1", State::ErrIllegalChar);
     expectError(t, "illegal character '", "a ' b", "1", State::ErrIllegalChar);
-    expectError(t, "colon is not in the alphabet", "a : b", "1", State::ErrIllegalChar);
     expectError(t, "backslash outside string", "a \\ b", "1", State::ErrIllegalChar);
     expectError(t, "illegal character in comment", "// ok ? \nx", "", State::ErrIllegalChar);
     expectError(t, "cyrillic in comment", "// \xD0\xBF\xD1\x80\xD0\xB8", "", State::ErrIllegalChar);

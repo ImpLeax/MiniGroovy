@@ -33,7 +33,7 @@ enum class State : int {
 
     TwoCharOp = 20,       // ** <= >= == != && || ..
     OneCharOpBack = 21,   // * односимвольний оператор: * < > = ! / .
-    SingleChar = 22,      // + - ( ) { } [ ] ; ,
+    SingleChar = 22,      // + - ( ) { } [ ] ; , :
 
     CrRead = 23,          // прочитано CR
     EndOfLine = 24,       // кінець рядка LF або CRLF

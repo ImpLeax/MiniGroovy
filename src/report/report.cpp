@@ -86,4 +86,14 @@ void printSummary(std::ostream& out, const LexResult& result) {
     out << std::format("Lexer: lexical analysis aborted in state {}\n", static_cast<int>(e.state));
 }
 
+void printParseSummary(std::ostream& out, const ParseResult& result) {
+    if (result.ok()) {
+        out << "Parser: syntax analysis completed successfully\n";
+        return;
+    }
+    const SyntaxError& e = *result.error;
+    out << std::format("Parser: error at line {}, column {}: {}\n", e.line, e.column, e.message);
+    out << "Parser: syntax analysis aborted\n";
+}
+
 }  // namespace minigroovy

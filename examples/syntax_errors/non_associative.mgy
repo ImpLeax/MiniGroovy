@@ -1,0 +1,3 @@
+// Expected: line 3
+int x = 5;
+boolean inside = 0 < x < 10;

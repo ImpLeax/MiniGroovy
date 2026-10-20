@@ -1,0 +1,6 @@
+// Expected: line 3
+void outer() {
+    int inner(int a) {
+        return a;
+    }
+}

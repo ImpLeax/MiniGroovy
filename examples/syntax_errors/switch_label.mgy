@@ -1,0 +1,8 @@
+// Expected: line 6
+int n = 1;
+switch (n) {
+    case 0:
+    case 1
+        print("small\n");
+        break;
+}

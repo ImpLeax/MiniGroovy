@@ -5,10 +5,12 @@
 #include <iostream>
 
 #include "lexer_tests.hpp"
+#include "parser_tests.hpp"
 
 int main(int argc, char** argv) {
     minigroovy::test::TestRunner runner;
     minigroovy::test::runLexerTests(runner);
+    minigroovy::test::runParserTests(runner);
     if (argc > 1) {
         minigroovy::test::runExampleTests(runner, std::filesystem::path(argv[1]));
     }

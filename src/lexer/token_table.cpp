@@ -28,8 +28,10 @@ std::optional<TokenInfo> lookupLexeme(std::string_view lexeme) {
         {"}", {T::Brace, 39}},          {"[", {T::Bracket, 40}},
         {"]", {T::Bracket, 41}},        {";", {T::Punct, 42}},
         {",", {T::Punct, 43}},          {".", {T::Punct, 44}},
-        // Рядки 45–50 (пробіли, кінці рядків, коментарі) у таблицю розбору не потрапляють.
         {"type", {T::Keyword, 51}},     {"..", {T::RangeOp, 52}},
+        {"switch", {T::Keyword, 53}},   {"case", {T::Keyword, 54}},
+        {"default", {T::Keyword, 55}},  {"break", {T::Keyword, 56}},
+        {":", {T::Punct, 57}},
     };
 
     const auto it = table.find(lexeme);

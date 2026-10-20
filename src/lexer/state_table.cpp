@@ -70,6 +70,7 @@ constexpr CharTransition kCharTransitions[] = {
     {S::Start, ']', S::SingleChar},
     {S::Start, ';', S::SingleChar},
     {S::Start, ',', S::SingleChar},
+    {S::Start, ':', S::SingleChar},
 };
 
 constexpr ClassTransition kClassTransitions[] = {
